@@ -321,9 +321,9 @@ This project is licensed under the MIT License - see **[`LICENSE`](LICENSE)**.
 
 - **Author**: MD EAFTEKHIRUL ISLAM
 - **Email**: eafte1@outlook.com
-- **GitHub**: [@eis-1](https://github.com/eis-1)
-- **Repository**: [electrical-supplier-website](https://github.com/eis-1/electrical-supplier-website)
-- **Issues**: [Report bugs or request features](https://github.com/eis-1/electrical-supplier-website/issues)
+- **GitHub**: [@eis-1](https://github.com/eafte)
+- **Repository**: [electrical-supplier-website](https://github.com/eafte/electrical-supplier-website)
+- **Issues**: [Report bugs or request features](https://github.com/eafte/electrical-supplier-website/issues)
 
 ---
 
