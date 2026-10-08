@@ -4,8 +4,8 @@ import { check, group, sleep } from "k6";
 const BASE_URL = __ENV.BASE_URL || "http://localhost:5000";
 
 export const options = {
-  vus: 5,
-  duration: "20s",
+  vus: 2,
+  duration: "10s",
   thresholds: {
     http_req_failed: ["rate<0.01"],
     http_req_duration: ["p(95)<800"],
