@@ -166,7 +166,8 @@ class StorageService {
 
   private async deleteLocal(key: string): Promise<void> {
     const uploadDir = path.resolve(env.UPLOAD_DIR);
-    const filePath = path.join(uploadDir, key);
+    const normalizedKey = key.replace(/\\/g, "/");
+    const filePath = path.join(uploadDir, normalizedKey);
 
     // Security check: ensure path is within upload directory
     const resolvedPath = path.resolve(filePath);

@@ -190,7 +190,7 @@ describe("OpenAPI contract (live)", () => {
   beforeAll(async () => {
     // Ensure default admin exists and is reset to a known state.
     const backendRoot = path.resolve(__dirname, "..");
-    execSync("node setup-admin.js", { cwd: backendRoot, stdio: "ignore" });
+    execSync("npx tsx scripts/ensure-role-admins.ts", { cwd: backendRoot, stdio: "ignore" });
 
     // Create a dedicated user for contract tests so that other suites toggling
     // 2FA on the default admin cannot make these tests flaky.

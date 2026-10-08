@@ -86,7 +86,7 @@ describe('Electrical Supplier API Tests', () => {
   beforeAll(async () => {
     // Ensure default admin exists and is reset to a known state.
     const backendRoot = path.resolve(__dirname, '..');
-    execSync('node setup-admin.js', { cwd: backendRoot, stdio: 'ignore' });
+    execSync('npx tsx scripts/ensure-role-admins.ts', { cwd: backendRoot, stdio: 'ignore' });
 
     // Ensure additional role users exist for RBAC tests (idempotent).
     const prisma = new PrismaClient();
