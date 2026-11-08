@@ -8,7 +8,7 @@ on:
 
 jobs:
   test-build:
-    name: Test & Build (Node 18)
+    name: Test & Build (Node 20)
     runs-on: ubuntu-latest
     env:
       # Minimal env needed for backend to boot in CI
@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install root dependencies
