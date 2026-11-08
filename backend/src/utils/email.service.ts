@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import type { Transporter } from "nodemailer";
 import { env } from "../config/env";
 import { logger } from "../utils/logger";
 
@@ -41,7 +42,7 @@ export interface EmailOptions {
  * await emailService.sendEmail({ to: 'user@example.com', subject: 'Hello', html: '<p>Hi</p>' });
  */
 class EmailService {
-  private transporter: nodemailer.Transporter | null = null;
+  private transporter: Transporter | null = null;
 
   /**
    * Initialize the email service
