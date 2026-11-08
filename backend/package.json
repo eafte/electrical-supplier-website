@@ -9,7 +9,7 @@
     "start": "node dist/server.js",
     "e2e:server": "node start-e2e.js",
     "e2e:server:ps": "powershell -ExecutionPolicy Bypass -File start-e2e.ps1",
-    "cleanup:ports": "powershell -ExecutionPolicy Bypass -File cleanup-ports.ps1",
+    "cleanup:ports": "node -e \"if(process.platform==='win32')require('child_process').execSync('powershell -ExecutionPolicy Bypass -File cleanup-ports.ps1',{stdio:'inherit'})\"",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
