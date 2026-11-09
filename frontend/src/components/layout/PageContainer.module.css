@@ -7,4 +7,5 @@
 .mainContent {
   flex: 1;
   padding-top: 0;
+  min-height: calc(var(--app-height, 100vh) - var(--navbar-height, 80px));
 }
