@@ -86,16 +86,6 @@ jobs:
           tail -n 200 ci-backend.log || true
           exit 1
 
-      - name: Debug setup-admin
-        continue-on-error: true
-        working-directory: ./backend
-        run: |
-          node -v
-          ls -la prisma
-          echo "DATABASE_URL=$DATABASE_URL"
-          node setup-admin.js; echo "setup-admin exit code: $?"
-          node -e "require('@prisma/client'); console.log('prisma client loads ok')"; echo "prisma require exit code: $?"
-
       - name: Backend tests (integration)
         working-directory: ./backend
         env:
