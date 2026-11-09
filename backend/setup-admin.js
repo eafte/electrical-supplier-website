@@ -61,7 +61,7 @@ async function setupAdmin() {
 
       // Test password
       const passwordMatch = await bcrypt.compare(seedPassword, verify.password);
-      console.log('✓ Verification: Password hash is correct:', passwordMatch);
+      console.log(passwordMatch ? '✓ Verification: Password hash is correct' : '✗ Verification: Password hash is incorrect');
     }
 
   } catch (error) {
