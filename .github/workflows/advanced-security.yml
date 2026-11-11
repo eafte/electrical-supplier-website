@@ -69,25 +69,44 @@ jobs:
           args: --severity-threshold=high --file=frontend/package.json
           command: test
 
-  # Container security scanning (if using Docker)
+  # Repository filesystem vulnerability scanning
   trivy-scan:
-    name: Trivy Container Scan
+    name: Trivy Vulnerability Scan
     runs-on: ubuntu-latest
-    if: false  # Enable this if you containerize the app
+    permissions:
+      contents: read
+      security-events: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+      - name: Trivy scan (gate)
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          exit-code: '1'
+
+      # This only produces the Security tab report; the step above is the gate.
+      - name: Generate Trivy SARIF report
+        if: always()
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'sarif'
           output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          limit-severities-for-sarif: true
+          ignore-unfixed: true
+          exit-code: '0'
 
       - name: Upload Trivy results to GitHub Security tab
+        if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
