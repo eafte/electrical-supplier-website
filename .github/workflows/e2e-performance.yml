@@ -17,6 +17,8 @@ jobs:
       PORT: 5000
       DATABASE_URL: file:./dev.db
       JWT_SECRET: ci-test-secret-change-me
+      RATE_LIMIT_MAX_REQUESTS: 1000
+      CORS_ORIGIN: http://localhost:5000
 
     steps:
       - name: Checkout
@@ -81,7 +83,10 @@ jobs:
       NODE_ENV: production
       PORT: 5000
       DATABASE_URL: file:./dev.db
-      JWT_SECRET: ci-test-secret-change-me
+      JWT_SECRET: ci-lighthouse-jwt-secret-change-me-32chars
+      JWT_REFRESH_SECRET: ci-lighthouse-refresh-secret-change-me-32chars
+      COOKIE_SECRET: ci-lighthouse-cookie-secret-change-me-32chars
+      SEED_ADMIN_PASSWORD: ci-lighthouse-seed-password
 
     steps:
       - name: Checkout
@@ -95,9 +100,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm ci || npm install
-          cd backend && npm ci || npm install
-          cd ../frontend && npm ci || npm install
+          npm ci --include=dev || npm install --include=dev
+          cd backend && npm ci --include=dev || npm install --include=dev
+          cd ../frontend && npm ci --include=dev || npm install --include=dev
 
       - name: Setup database
         working-directory: ./backend
@@ -127,6 +132,7 @@ jobs:
       PORT: 5000
       DATABASE_URL: file:./dev.db
       JWT_SECRET: ci-test-secret-change-me
+      RATE_LIMIT_MAX_REQUESTS: 1000
 
     steps:
       - name: Checkout
@@ -147,6 +153,7 @@ jobs:
         run: |
           npx prisma generate
           npx prisma migrate deploy
+          npm run prisma:seed
 
       - name: Build backend
         working-directory: ./backend
