@@ -23,13 +23,12 @@ module.exports = {
   // Coverage thresholds - enforces quality gate
   // Note: Integration tests may have lower coverage than unit tests
   // Adjust thresholds based on your testing strategy
-  // CI-measured baseline; raise towards 70/60/65/70 as tests are added.
   coverageThreshold: {
     global: {
-      branches: 41,
-      functions: 55,
-      lines: 65,
-      statements: 65,
+      branches: 60,
+      functions: 65,
+      lines: 70,
+      statements: 70,
     },
   },
 };

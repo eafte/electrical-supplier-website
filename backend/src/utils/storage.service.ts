@@ -172,7 +172,7 @@ class StorageService {
     const resolvedPath = path.resolve(filePath);
     const resolvedUploadDir = path.resolve(uploadDir);
 
-    if (key.includes("\\") || !resolvedPath.startsWith(resolvedUploadDir)) {
+    if (!resolvedPath.startsWith(resolvedUploadDir)) {
       throw new AppError(403, "Invalid file path - path traversal detected");
     }
 

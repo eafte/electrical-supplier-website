@@ -9,7 +9,7 @@
     "install:all": "npm --prefix backend install && npm --prefix frontend install",
     "dev": "concurrently -n backend,frontend -c cyan,magenta \"npm --prefix backend run dev\" \"npm --prefix frontend run dev\"",
     "dev:5000": "npm --prefix frontend run build && npm --prefix backend run dev",
-    "start": "node -e \"const fs=require('node:fs');const {execSync}=require('node:child_process');if(!fs.existsSync('frontend/dist'))execSync('npm --prefix frontend run build',{stdio:'inherit'});execSync('npm --prefix backend run dev',{stdio:'inherit'});\"",
+    "start": "powershell -ExecutionPolicy Bypass -File ./start-server.ps1",
     "dev:single": "powershell -ExecutionPolicy Bypass -File ./start-server.ps1",
     "build": "npm --prefix frontend run build && npm --prefix backend run build",
     "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
