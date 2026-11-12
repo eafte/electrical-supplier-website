@@ -170,18 +170,94 @@ jobs:
         working-directory: ./frontend
         run: npx license-checker --summary
 
-  # Security headers check (for deployed apps)
+  # Security headers check on the app started inside the job
   security-headers-check:
     name: Security Headers Check
     runs-on: ubuntu-latest
-    if: false  # Enable after deployment
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    env:
+      NODE_ENV: production
+      PORT: 5000
+      DATABASE_URL: file:./dev.db
+      JWT_SECRET: ci-lighthouse-jwt-secret-change-me-32chars
+      JWT_REFRESH_SECRET: ci-lighthouse-refresh-secret-change-me-32chars
+      COOKIE_SECRET: ci-lighthouse-cookie-secret-change-me-32chars
+      SEED_ADMIN_PASSWORD: ci-lighthouse-seed-password
 
     steps:
-      - name: Check security headers
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
         run: |
-          curl -I https://your-production-domain.com | grep -i "strict-transport-security"
-          curl -I https://your-production-domain.com | grep -i "x-content-type-options"
-          curl -I https://your-production-domain.com | grep -i "x-frame-options"
+          npm ci --include=dev
+          (cd backend && npm ci --include=dev)
+          (cd frontend && npm ci --include=dev)
+
+      - name: Setup database
+        working-directory: ./backend
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+          npm run prisma:seed
+
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
+
+      - name: Build backend
+        working-directory: ./backend
+        run: npm run build
+
+      - name: Start backend (background)
+        working-directory: ./backend
+        run: npm run start > backend.log 2>&1 &
+
+      - name: Wait for backend health
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:5000/health >/dev/null; then
+              echo "Backend is up"
+              exit 0
+            fi
+            echo "Waiting for backend... ($i/30)"
+            sleep 2
+          done
+          echo "Backend failed to start"
+          tail -n 100 backend/backend.log
+          exit 1
+
+      - name: Verify security headers
+        run: |
+          failures=0
+          check_header() {
+            if ! grep -i -E "$2" headers.txt >/dev/null; then echo "$1: missing or invalid $3"; failures=1; fi
+          }
+          for url in http://localhost:5000/health http://localhost:5000/; do
+            if curl -sS -D headers.txt -o /dev/null -H 'X-Forwarded-Proto: https' "$url"; then
+              check_header "$url" '^[[:space:]]*x-content-type-options:[[:space:]]*nosniff[[:space:]]*$' x-content-type-options
+              check_header "$url" '^[[:space:]]*x-frame-options:[[:space:]]*DENY[[:space:]]*$' x-frame-options
+              check_header "$url" '^[[:space:]]*content-security-policy:[[:space:]]*[^[:space:]].*$' content-security-policy
+              check_header "$url" '^[[:space:]]*referrer-policy:[[:space:]]*[^[:space:]].*$' referrer-policy
+              check_header "$url" '^[[:space:]]*strict-transport-security:' strict-transport-security
+              for header in cross-origin-opener-policy cross-origin-resource-policy origin-agent-cluster x-dns-prefetch-control x-download-options x-permitted-cross-domain-policies x-xss-protection; do
+                check_header "$url" "^[[:space:]]*$header:" "$header"
+              done
+              if grep -i -E '^[[:space:]]*x-powered-by:' headers.txt >/dev/null; then echo "$url: unexpected x-powered-by"; failures=1; fi
+            else
+              echo "$url: HTTP response headers (request failed)"; failures=1
+            fi
+          done
+          exit "$failures"
 
   # Summary report
   security-summary:
