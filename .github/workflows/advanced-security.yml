@@ -249,7 +249,7 @@ jobs:
               check_header "$url" '^[[:space:]]*content-security-policy:[[:space:]]*[^[:space:]].*$' content-security-policy
               check_header "$url" '^[[:space:]]*referrer-policy:[[:space:]]*[^[:space:]].*$' referrer-policy
               check_header "$url" '^[[:space:]]*strict-transport-security:' strict-transport-security
-              for header in cross-origin-opener-policy cross-origin-resource-policy origin-agent-cluster x-dns-prefetch-control x-download-options x-permitted-cross-domain-policies x-xss-protection; do
+              for header in cross-origin-opener-policy cross-origin-resource-policy origin-agent-cluster x-dns-prefetch-control x-download-options x-permitted-cross-domain-policies x-xss-protection x-test-missing-header; do
                 check_header "$url" "^[[:space:]]*$header:" "$header"
               done
               if grep -i -E '^[[:space:]]*x-powered-by:' headers.txt >/dev/null; then echo "$url: unexpected x-powered-by"; failures=1; fi
