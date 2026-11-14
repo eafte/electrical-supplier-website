@@ -1,13 +1,22 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 
+const seedPassword =
+  process.env.SEED_ADMIN_PASSWORD ||
+  (process.env.NODE_ENV === 'production' ? '' : 'admin123');
+
+if (!seedPassword) {
+  throw new Error(
+    'SEED_ADMIN_PASSWORD is required when running seed in production. Refusing to seed a default password.',
+  );
+}
+
 const prisma = new PrismaClient();
 
 async function setupAdmin() {
   console.log('\n🔧 Setting up admin user...\n');
 
   try {
-    const seedPassword = process.env.SEED_ADMIN_PASSWORD || 'admin123';
     // Hash password
     const hashedPassword = await bcrypt.hash(seedPassword, 10);
     console.log('✓ Password hashed');

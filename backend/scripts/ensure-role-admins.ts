@@ -72,6 +72,12 @@ async function upsertAdmin(email: string, role: Role, name: string) {
 }
 
 async function main() {
+  if (process.env.NODE_ENV === "production" && !process.env.SEED_ADMIN_PASSWORD) {
+    throw new Error(
+      "SEED_ADMIN_PASSWORD is required when running seed in production. Refusing to seed a default password.",
+    );
+  }
+
   console.log("\n🔐 Ensuring role-based admin accounts exist (idempotent)...\n");
   const passwordSource = process.env.ROLE_ADMIN_PASSWORD
     ? "ROLE_ADMIN_PASSWORD"
