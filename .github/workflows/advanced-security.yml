@@ -13,7 +13,7 @@ jobs:
   # SAST - Static Application Security Testing
   sast-codeql:
     name: CodeQL Analysis (SAST)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: read
       contents: read
@@ -45,7 +45,7 @@ jobs:
   # Dependency vulnerability scanning with Snyk
   snyk-scan:
     name: Snyk Vulnerability Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     # Disabled by default: requires SNYK_TOKEN secret (and secrets are not available for forks).
     # Enable when configured.
@@ -72,7 +72,7 @@ jobs:
   # Repository filesystem vulnerability scanning
   trivy-scan:
     name: Trivy Vulnerability Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       security-events: write
@@ -114,7 +114,7 @@ jobs:
   # License compliance check
   license-check:
     name: License Compliance Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
@@ -145,7 +145,7 @@ jobs:
   # Security headers check on the app started inside the job
   security-headers-check:
     name: Security Headers Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     permissions:
       contents: read
@@ -234,7 +234,7 @@ jobs:
   # Summary report
   security-summary:
     name: Security Scan Summary
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [sast-codeql, trivy-scan, security-headers-check, license-check, snyk-scan]
     if: always()
 

@@ -9,7 +9,7 @@ on:
 jobs:
   test-build:
     name: Test & Build (Node 20)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       # Minimal env needed for backend to boot in CI
       NODE_ENV: test
