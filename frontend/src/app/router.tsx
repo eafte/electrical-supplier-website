@@ -16,7 +16,7 @@ import AdminCategories from "@pages/Admin/AdminCategories";
 
 export const AppRouter = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter useTransitions={false}>
       <Routes>
         {/* Admin Routes - No layout */}
         <Route path="/admin/login" element={<AdminLogin />} />
