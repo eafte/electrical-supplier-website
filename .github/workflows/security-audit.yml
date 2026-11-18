@@ -55,6 +55,13 @@ jobs:
           node <<'NODE'
           const fs = require('fs');
           const path = require('path');
+          const ALLOWLIST = [
+            {
+              id: 'GHSA-fc5q-39xc-vjpf',
+              expires: '2026-12-18',
+              reason: 'picomatch ReDoS through 4.0.7; no patched version on npm; dev tooling only (not in npm ls --omit=dev); needs untrusted glob patterns',
+            },
+          ];
 
           function readAuditJson(p) {
             if (!fs.existsSync(p)) {
@@ -72,7 +79,11 @@ jobs:
             if (!vulns) {
               throw new Error(`Audit report missing metadata.vulnerabilities: ${p}`);
             }
-            return { path: p, vulnerabilities: vulns };
+            return {
+              path: p,
+              vulnerabilities: vulns,
+              advisories: json.vulnerabilities || {},
+            };
           }
 
           const backend = readAuditJson(path.join('backend', 'backend-audit.json'));
@@ -86,11 +97,46 @@ jobs:
           console.log(`Backend vulnerabilities: high=${bHigh}, critical=${bCritical}`);
           console.log(`Frontend vulnerabilities: high=${fHigh}, critical=${fCritical}`);
 
-          if (bHigh + bCritical + fHigh + fCritical > 0) {
-            console.error('❌ High/critical vulnerabilities found. See uploaded audit artifacts.');
-            process.exit(1);
+          const advisories = new Map();
+          for (const report of [backend, frontend]) {
+            for (const entry of Object.values(report.advisories)) {
+              if (typeof entry !== 'object' || entry === null || !Array.isArray(entry.via)) continue;
+              for (const via of entry.via) {
+                if (
+                  typeof via === 'object' &&
+                  via !== null &&
+                  (via.severity === 'high' || via.severity === 'critical')
+                ) {
+                  const url = typeof via.url === 'string' ? via.url : '';
+                  if (!advisories.has(url)) {
+                    advisories.set(url, via);
+                  }
+                }
+              }
+            }
           }
 
+          let blocking = false;
+          const today = new Date().toISOString().slice(0, 10);
+          for (const advisory of advisories.values()) {
+            const allowed = ALLOWLIST.find(
+              (entry) => advisory.url && advisory.url.endsWith(entry.id) && today <= entry.expires,
+            );
+            if (allowed) {
+              console.log(`Allowed advisory: ${advisory.url} (reason: ${allowed.reason}; expires: ${allowed.expires})`);
+            } else {
+              blocking = true;
+              console.error(`Blocking advisory: ${advisory.url || '(missing url)'} (severity=${advisory.severity})`);
+            }
+          }
+
+          if (advisories.size === 0 && bHigh + bCritical + fHigh + fCritical > 0) {
+            blocking = true;
+            console.error('Blocking: audit counts show high/critical findings but no advisory details were found in the reports.');
+          }
+          if (blocking) {
+            process.exit(1);
+          }
           console.log('✅ No high/critical vulnerabilities found');
           NODE
 
